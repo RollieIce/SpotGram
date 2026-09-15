@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rotation — playlists worth stealing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#EDEAF2;
+    --card:#FFFFFF;
+    --ink:#241C33;
+    --muted:#6E6480;
+    --line:#DDD6E8;
+    --violet:#5B2BD9;
+    --coral:#FF5A3C;
+    --gold:#E8A317;
+    --radius:14px;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--paper); color:var(--ink);
+    font-family:Inter, system-ui, sans-serif; font-size:15px; line-height:1.55;
+  }
+  h1,h2,h3{font-family:'Bricolage Grotesque',Inter,sans-serif; margin:0; line-height:1.05;}
+  button{font:inherit; cursor:pointer;}
+  input,textarea{font:inherit; color:inherit;}
+  a{color:var(--violet)}
+
+  .wrap{max-width:620px; margin:0 auto; padding:0 16px 80px;}
+
+  /* ---------- top bar ---------- */
+  header{
+    position:sticky; top:0; z-index:10; background:var(--paper);
+    border-bottom:1px solid var(--line);
+  }
+  .bar{max-width:620px; margin:0 auto; padding:14px 16px; display:flex; align-items:center; gap:12px;}
+  .logo{font-family:'Bricolage Grotesque',sans-serif; font-weight:800; font-size:23px; letter-spacing:-.02em;}
+  .logo span{color:var(--violet)}
+  .who{margin-left:auto; color:var(--muted); font-size:13.5px;}
+  .linkbtn{background:none; border:0; color:var(--muted); text-decoration:underline; padding:0; font-size:13.5px;}
+
+  /* ---------- auth ---------- */
+  .gate{max-width:390px; margin:14vh auto; padding:0 20px; text-align:left;}
+  .gate h1{font-size:40px; letter-spacing:-.03em; margin-bottom:10px;}
+  .gate p.sub{color:var(--muted); margin:0 0 26px;}
+  .field{display:block; margin-bottom:11px;}
+  .field input{
+    width:100%; padding:11px 13px; border:1px solid var(--line);
+    border-radius:10px; background:var(--card);
+  }
+  .field input:focus{outline:2px solid var(--violet); outline-offset:1px; border-color:transparent;}
+  .primary{
+    width:100%; padding:11px; border:0; border-radius:10px;
+    background:var(--violet); color:#fff; font-weight:600; margin-top:6px;
+  }
+  .primary:disabled{opacity:.5; cursor:default;}
+  .switch{margin-top:16px; color:var(--muted); font-size:14px;}
+  .msg{margin-top:12px; font-size:14px; color:var(--coral); min-height:20px;}
+
+  /* ---------- composer ---------- */
+  .composer{
+    background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
+    padding:16px; margin:20px 0 26px;
+  }
+  .composer h2{font-size:17px; margin-bottom:12px;}
+  .composer input, .composer textarea{
+    width:100%; padding:10px 12px; border:1px solid var(--line);
+    border-radius:10px; background:var(--paper); margin-bottom:9px;
+  }
+  .composer textarea{resize:vertical; min-height:58px;}
+  .composer .primary{width:auto; padding:9px 20px;}
+
+  /* ---------- post ---------- */
+  .post{
+    background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
+    margin-bottom:22px; overflow:hidden;
+  }
+  .post-head{display:flex; align-items:center; gap:10px; padding:13px 16px;}
+  .avatar{
+    width:34px; height:34px; border-radius:50%; flex:none;
+    display:grid; place-items:center; color:#fff; font-weight:600; font-size:14px;
+  }
+  .name{font-weight:600;}
+  .when{color:var(--muted); font-size:13px;}
+  .caption{padding:0 16px 13px; margin:0;}
+  .embed{border:0; width:100%; height:352px; display:block; background:var(--paper);}
+
+  .actions{display:flex; align-items:center; gap:8px; padding:12px 16px; flex-wrap:wrap;}
+  .like{
+    border:1px solid var(--line); background:var(--card); border-radius:999px;
+    padding:6px 13px; display:flex; align-items:center; gap:7px; color:var(--ink);
+  }
+  .like.on{background:#FFEDE9; border-color:var(--coral); color:var(--coral);}
+  .stars{margin-left:auto; display:flex; align-items:center; gap:2px;}
+  .star{background:none; border:0; padding:1px; font-size:19px; line-height:1; color:var(--line);}
+  .star.lit{color:var(--gold);}
+  .avg{color:var(--muted); font-size:13px; margin-left:7px;}
+
+  /* ---------- comments ---------- */
+  .comments{border-top:1px solid var(--line); padding:12px 16px;}
+  .comment{margin-bottom:9px; font-size:14.5px;}
+  .comment b{font-weight:600;}
+  .comment-form{display:flex; gap:8px; margin-top:11px;}
+  .comment-form input{
+    flex:1; padding:9px 12px; border:1px solid var(--line);
+    border-radius:999px; background:var(--paper);
+  }
+  .comment-form button{
+    border:0; background:var(--violet); color:#fff; border-radius:999px;
+    padding:9px 16px; font-weight:600;
+  }
+  .none{color:var(--muted); font-size:14px;}
+
+  .empty{text-align:center; padding:60px 20px; color:var(--muted);}
+  .empty h2{font-size:22px; color:var(--ink); margin-bottom:8px;}
+  .hidden{display:none;}
+
+  @media (prefers-reduced-motion:no-preference){
+    .like{transition:background .12s ease, color .12s ease;}
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ SIGN IN / SIGN UP ============ -->
+<div id="gate" class="gate">
+  <h1>Rotation</h1>
+  <p class="sub">Post the playlists you're actually listening to. Let everyone else argue about them.</p>
+
+  <label class="field"><input id="username" type="text" placeholder="Username" autocomplete="username"></label>
+  <label class="field"><input id="email" type="email" placeholder="Email" autocomplete="email"></label>
+  <label class="field"><input id="password" type="password" placeholder="Password" autocomplete="current-password"></label>
+
+  <button id="go" class="primary">Create account</button>
+  <div id="msg" class="msg"></div>
+  <div class="switch">
+    <span id="switchText">Already have an account?</span>
+    <button id="switchBtn" class="linkbtn">Sign in</button>
+  </div>
+</div>
+
+<!-- ============ THE APP ============ -->
+<div id="app" class="hidden">
+  <header>
+    <div class="bar">
+      <div class="logo">Rot<span>a</span>tion</div>
+      <div class="who" id="who"></div>
+      <button id="signout" class="linkbtn">Sign out</button>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <div class="composer">
+      <h2>Share a playlist</h2>
+      <input id="link" type="url" placeholder="Paste a Spotify playlist link">
+      <textarea id="caption" placeholder="Say something about it"></textarea>
+      <button id="share" class="primary">Post</button>
+      <div id="shareMsg" class="msg"></div>
+    </div>
+
+    <div id="feed"></div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+/* ============================================================
+   STEP 1 — paste your two Supabase values here.
+   Find them in Supabase: Project Settings > API
+   ============================================================ */
+const SUPABASE_URL = "https://ldrztifguwqcqhglvawi.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_RBULAu2icz1UmvEZtObsCg_wBzq6amg";
+/* ========================================================== */
+
+const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+let me = null;          // { id, username }
+let mode = "signup";    // or "signin"
+
+/* ---------- helpers ---------- */
+
+// Turns any Spotify playlist link into just its ID.
+function playlistId(url){
+  const m = String(url).match(/playlist[/:]([A-Za-z0-9]+)/);
+  return m ? m[1] : null;
+}
+
+function timeAgo(iso){
+  const s = Math.floor((Date.now() - new Date(iso)) / 1000);
+  if (s < 60) return "just now";
+  if (s < 3600) return Math.floor(s/60) + "m ago";
+  if (s < 86400) return Math.floor(s/3600) + "h ago";
+  if (s < 604800) return Math.floor(s/86400) + "d ago";
+  return new Date(iso).toLocaleDateString();
+}
+
+// Same username always gets the same colour circle.
+function colourFor(name){
+  let h = 0;
+  for (const ch of name) h = (h * 31 + ch.charCodeAt(0)) % 360;
+  return `hsl(${h} 58% 48%)`;
+}
+
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, c =>
+    ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
+}
+
+/* ---------- auth ---------- */
+
+document.getElementById("switchBtn").onclick = () => {
+  mode = mode === "signup" ? "signin" : "signup";
+  const signup = mode === "signup";
+  document.getElementById("username").classList.toggle("hidden", !signup);
+  document.getElementById("go").textContent = signup ? "Create account" : "Sign in";
+  document.getElementById("switchText").textContent =
+    signup ? "Already have an account?" : "New here?";
+  document.getElementById("switchBtn").textContent = signup ? "Sign in" : "Create one";
+  document.getElementById("msg").textContent = "";
+};
+
+document.getElementById("go").onclick = async () => {
+  const btn = document.getElementById("go");
+  const msg = document.getElementById("msg");
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value;
+  const username = document.getElementById("username").value.trim();
+
+  msg.textContent = "";
+  if (!email || !password) { msg.textContent = "Email and password are both needed."; return; }
+  if (mode === "signup" && username.length < 2) { msg.textContent = "Pick a username, at least 2 characters."; return; }
+
+  btn.disabled = true;
+  try {
+    if (mode === "signup") {
+      const { data, error } = await db.auth.signUp({ email, password });
+      if (error) throw error;
+      if (!data.session) {
+        msg.textContent = "Check your email to confirm, then sign in.";
+        return;
+      }
+      const { error: pErr } = await db.from("profiles")
+        .insert({ id: data.user.id, username });
+      if (pErr) throw new Error(
+        pErr.code === "23505" ? "That username is taken." : pErr.message);
+    } else {
+      const { error } = await db.auth.signInWithPassword({ email, password });
+      if (error) throw error;
+    }
+    await start();
+  } catch (e) {
+    msg.textContent = e.message;
+  } finally {
+    btn.disabled = false;
+  }
+};
+
+document.getElementById("signout").onclick = async () => {
+  await db.auth.signOut();
+  location.reload();
+};
+
+/* ---------- posting ---------- */
+
+document.getElementById("share").onclick = async () => {
+  const msg = document.getElementById("shareMsg");
+  const linkEl = document.getElementById("link");
+  const capEl = document.getElementById("caption");
+  const id = playlistId(linkEl.value);
+
+  msg.textContent = "";
+  if (!id) {
+    msg.textContent = "That doesn't look like a playlist link. It should contain /playlist/.";
+    return;
+  }
+  const { error } = await db.from("posts").insert({
+    user_id: me.id, playlist_id: id, caption: capEl.value.trim()
+  });
+  if (error) { msg.textContent = error.message; return; }
+
+  linkEl.value = ""; capEl.value = "";
+  loadFeed();
+};
+
+/* ---------- feed ---------- */
+
+async function loadFeed(){
+  const feed = document.getElementById("feed");
+  const { data: posts, error } = await db
+    .from("posts")
+    .select(`
+      id, playlist_id, caption, created_at,
+      profiles ( username ),
+      likes ( user_id ),
+      ratings ( user_id, score ),
+      comments ( id, body, created_at, profiles ( username ) )
+    `)
+    .order("created_at", { ascending: false })
+    .limit(50);
+
+  if (error) { feed.innerHTML = `<div class="empty">Couldn't load the feed: ${escapeHtml(error.message)}</div>`; return; }
+
+  if (!posts.length) {
+    feed.innerHTML = `<div class="empty"><h2>Nothing here yet</h2>
+      <p>Paste a playlist link above and be the first.</p></div>`;
+    return;
+  }
+
+  feed.innerHTML = posts.map(renderPost).join("");
+}
+
+function renderPost(p){
+  const name = p.profiles?.username || "someone";
+  const liked = p.likes.some(l => l.user_id === me.id);
+  const mine = p.ratings.find(r => r.user_id === me.id);
+  const avg = p.ratings.length
+    ? (p.ratings.reduce((t,r) => t + r.score, 0) / p.ratings.length).toFixed(1)
+    : null;
+
+  const comments = [...p.comments]
+    .sort((a,b) => new Date(a.created_at) - new Date(b.created_at))
+    .map(c => `<div class="comment"><b>${escapeHtml(c.profiles?.username || "someone")}</b>
+      ${escapeHtml(c.body)}</div>`).join("");
+
+  const stars = [1,2,3,4,5].map(n =>
+    `<button class="star ${mine && mine.score >= n ? "lit" : ""}"
+       title="Rate ${n} out of 5"
+       onclick="rate(${p.id}, ${n})">★</button>`).join("");
+
+  return `
+  <article class="post">
+    <div class="post-head">
+      <div class="avatar" style="background:${colourFor(name)}">${escapeHtml(name[0].toUpperCase())}</div>
+      <div>
+        <div class="name">${escapeHtml(name)}</div>
+        <div class="when">${timeAgo(p.created_at)}</div>
+      </div>
+    </div>
+    ${p.caption ? `<p class="caption">${escapeHtml(p.caption)}</p>` : ""}
+    <iframe class="embed" loading="lazy"
+      src="https://open.spotify.com/embed/playlist/${p.playlist_id}"
+      allow="encrypted-media"></iframe>
+
+    <div class="actions">
+      <button class="like ${liked ? "on" : ""}" onclick="toggleLike(${p.id}, ${liked})">
+        ${liked ? "♥" : "♡"} ${p.likes.length}
+      </button>
+      <div class="stars">${stars}${avg ? `<span class="avg">${avg} · ${p.ratings.length}</span>` : ""}</div>
+    </div>
+
+    <div class="comments">
+      ${comments || `<div class="none">No comments yet.</div>`}
+      <div class="comment-form">
+        <input id="c${p.id}" placeholder="Add a comment" onkeydown="if(event.key==='Enter')comment(${p.id})">
+        <button onclick="comment(${p.id})">Post</button>
+      </div>
+    </div>
+  </article>`;
+}
+
+/* ---------- reactions ---------- */
+
+async function toggleLike(postId, liked){
+  if (liked) {
+    await db.from("likes").delete().match({ post_id: postId, user_id: me.id });
+  } else {
+    await db.from("likes").insert({ post_id: postId, user_id: me.id });
+  }
+  loadFeed();
+}
+
+async function rate(postId, score){
+  await db.from("ratings")
+    .upsert({ post_id: postId, user_id: me.id, score }, { onConflict: "post_id,user_id" });
+  loadFeed();
+}
+
+async function comment(postId){
+  const input = document.getElementById("c" + postId);
+  const body = input.value.trim();
+  if (!body) return;
+  input.value = "";
+  await db.from("comments").insert({ post_id: postId, user_id: me.id, body });
+  loadFeed();
+}
+
+/* ---------- startup ---------- */
+
+async function start(){
+  const { data:{ session } } = await db.auth.getSession();
+  if (!session) return;
+
+  const { data: profile } = await db.from("profiles")
+    .select("id, username").eq("id", session.user.id).single();
+
+  if (!profile) { await db.auth.signOut(); return; }
+
+  me = profile;
+  document.getElementById("gate").classList.add("hidden");
+  document.getElementById("app").classList.remove("hidden");
+  document.getElementById("who").textContent = "@" + me.username;
+  loadFeed();
+}
+
+start();
+</script>
+</body>
+</html>
